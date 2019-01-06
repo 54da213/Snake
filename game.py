@@ -8,8 +8,7 @@ import time
 
 def app():
     con = Controller()
-    con.init_map()
-    con.rule()
+    con.start_game()
 
 
 MAP_WIDTH = 400
@@ -58,14 +57,14 @@ class Map(object):
 
     def update_snake(self):
         # 新蛇头
-        _x1,_y1,_x2,_y2=snake.bodys[-1]
-        self.cv.create_rectangle(_x1,_y1,_x2,_y2, fill=snake.head_color)
+        x1, y1, x2, y2 = snake.bodys[-1]
+        self.cv.create_rectangle(x1, y1, x2, y2, fill=snake.head_color)
         # 旧蛇头
         x1, y1, x2, y2 = snake.bodys[-2]
-        self.cv.create_rectangle(x1,y1,x2,y2,fill=snake.body_color)
+        self.cv.create_rectangle(x1, y1, x2, y2, fill=snake.body_color)
         # 删除一个尾巴
-        __x1, __y1,__x2,__y2 = snake.bodys[0]
-        self.cv.create_rectangle(__x1, __y1, __x2, __y2, fill="red")
+        x1, y1, x2, y2 = snake.bodys[0]
+        self.cv.create_rectangle(x1, y1, x2, y2, fill="red")
         snake.bodys.pop(0)
 
 
@@ -81,6 +80,7 @@ class Snake(object):
 
 # 全局蛇
 snake = Snake()
+my_direction = 'd'
 
 
 class Controller(threading.Thread):
@@ -89,38 +89,59 @@ class Controller(threading.Thread):
         游戏初始化
         '''
         super(Controller, self).__init__()
-        self.direction = Direction.left
+        self.direction = Direction.right
         self._map = Map()
 
-    def rule(self):
+    def move(self):
+        # 旧蛇头
+        x1, y1, x2, y2 = snake.bodys[-1]
         if self.direction == Direction.up:
-            pass
+            y1 = y1 - BODY
+            y2 = y2 - BODY
         elif self.direction == Direction.down:
-            pass
+            y1 = y1 + BODY
+            y2 = y2 + BODY
         elif self.direction == Direction.left:
-            # 旧蛇头
-            x1, y1 ,x2, y2= snake.bodys[-1]
-            # 新蛇头
-            _x1, _y1 = x1 + BODY, y1
-            _x2, _y2 = x2 + BODY, y2
-
-            snake.bodys.append((_x1, _y1, _x2, _y2))
-            self._map.cv.after(1000, self.rule)
-            self._map.update_snake()
-            self._map.top.mainloop()
+            x1 = x1 - BODY
+            x2 = x2 - BODY
         elif self.direction == Direction.right:
-            pass
+            x1 = x1 + BODY
+            x2 = x2 + BODY
+        snake.bodys.append((x1, y1, x2, y2))
+        self._map.update_snake()
+        self._map.cv.after(1000, self.move)
+
 
     def init_map(self):
         self._map.draw()
         self._map.food()
         self._map.snake()
 
+
     def start_game(self):
-        pass
+        # 初始化地图
+        self._map.draw()
+        self._map.food()
+        self._map.snake()
+        self.move()
+        self._map.top.bind('<Key>', self.key_pressed)
+        self._map.cv.mainloop()
+
 
     def key_pressed(self, e):
-        self.direction = e.keysym
+        direction = e.char
+        if direction == 'w':
+            if self.direction != Direction.down:
+                self.direction = Direction.up
+        elif direction == 's':
+            if self.direction != Direction.up:
+                self.direction = Direction.down
+        elif direction == 'a':
+            if self.direction != Direction.right:
+                self.direction = Direction.left
+        elif direction == 'd':
+            if self.direction != Direction.left:
+                self.direction = Direction.right
 
 
 if __name__ == '__main__':
