@@ -179,8 +179,6 @@ class Controller(object):
         r = VIEW_WIDTH / BODY
         x = random.randint(0, r - 1)
         y = random.randint(0, r - 1)
-        if x == r and y == r:
-            self.over = True
         self.fx = BODY * x
         self.fy = BODY * y
         return tuple([BODY * x, BODY * y, BODY * x + BODY, BODY * y + BODY])
