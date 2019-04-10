@@ -185,6 +185,7 @@ class Controller(object):
 
 
 def Game():
+    #本地dev提交测试
     con = Controller()
     con.start_game()
 
