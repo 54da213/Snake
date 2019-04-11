@@ -33,7 +33,7 @@ jobs:
     displayName: 'Install dependencies'
 
   - script: |
-      pytest tests --doctest-modules --junitxml=junit/test-results.xml
+      python -m pip install --upgrade pip
     displayName: 'pytest'
 
   - task: PublishTestResults@2
